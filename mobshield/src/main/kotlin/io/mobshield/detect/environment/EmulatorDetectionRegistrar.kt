@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mobshield.detect.debugger
+package io.mobshield.detect.environment
 
 import android.content.Context
 import io.mobshield.core.MobShieldConfig
 import io.mobshield.core.ModuleRegistry
 
-object DebugDetectionRegistrar {
+object EmulatorDetectionRegistrar {
+    @JvmStatic
     fun register(
         context: Context,
         config: MobShieldConfig,
     ) {
         ModuleRegistry.register(
-            DebugDetectionModule(context, config.detectionTuning),
+            EmulatorDetectionModule(context, config.detectionTuning),
         )
     }
 }

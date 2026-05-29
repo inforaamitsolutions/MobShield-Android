@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mobshield.detect.hooks
+package io.mobshield.detect.integrity
 
 import android.content.Context
 import io.mobshield.core.MobShieldConfig
 import io.mobshield.core.ModuleRegistry
 
-/** Registers [HookDetectionModule] using tuning from [MobShieldConfig]. */
-object HookDetectionRegistrar {
+object IntegrityDetectionRegistrar {
+    @JvmStatic
     fun register(
         context: Context,
         config: MobShieldConfig,
     ) {
         ModuleRegistry.register(
-            HookDetectionModule(
-                context = context,
-                detectionTuning = config.detectionTuning,
-            ),
+            IntegrityDetectionModule(context, config),
         )
     }
 }

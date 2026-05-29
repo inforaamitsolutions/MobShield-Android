@@ -1,2 +1,5 @@
 jdk:
   - openjdk17
+# Match com.github.<GitHubUser>.<RepoName> — update USER/REPO to your GitHub repo.
+env:
+  ORG_GRADLE_PROJECT_GROUP: com.github.inforaamitsolutions.MobShield-Android

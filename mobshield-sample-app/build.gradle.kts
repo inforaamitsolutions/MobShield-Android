@@ -53,12 +53,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":mobshield-core"))
-    implementation(project(":mobshield-detect-root"))
-    implementation(project(":mobshield-detect-hooks"))
-    implementation(project(":mobshield-detect-debugger"))
-    implementation(project(":mobshield-detect-environment"))
-    implementation(project(":mobshield-detect-integrity"))
+    implementation(project(":mobshield"))
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

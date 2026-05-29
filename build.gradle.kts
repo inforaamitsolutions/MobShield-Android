@@ -36,6 +36,8 @@ subprojects {
     }
 }
 
+// JitPack: set ORG_GRADLE_PROJECT_GROUP in jitpack.yml to com.github.<user>.<repo>
+// so transitive module coordinates resolve from the same JitPack publication.
 val mobshieldGroup: String = findProperty("GROUP") as String? ?: "io.mobshield"
 val mobshieldVersion: String =
     // Prefer explicit Gradle property (used by Maven Central CI).

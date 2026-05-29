@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mobshield.detect.root
+package io.mobshield.detect.hooks
 
 import android.content.Context
 import io.mobshield.core.MobShieldConfig
 import io.mobshield.core.ModuleRegistry
 
-/** Helper to register [RootDetectionModule] with tuning from [MobShieldConfig]. */
-object RootDetectionRegistrar {
+/** Registers [HookDetectionModule] using tuning from [MobShieldConfig]. */
+object HookDetectionRegistrar {
+    @JvmStatic
     fun register(
         context: Context,
         config: MobShieldConfig,
     ) {
         ModuleRegistry.register(
-            RootDetectionModule(
+            HookDetectionModule(
                 context = context,
                 detectionTuning = config.detectionTuning,
             ),

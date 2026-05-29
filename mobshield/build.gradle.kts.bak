@@ -1,3 +1,4 @@
+import java.io.ByteArrayOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
@@ -98,14 +99,14 @@ fun repackAar(
     }
 }
 
-fun resolveReleaseAar(modulePath: String): java.io.File {
-    val aarDir = project(modulePath).layout.buildDirectory.dir("outputs/aar").get().asFile
-    return aarDir.listFiles()
-        ?.firstOrNull { it.extension == "aar" && it.name.contains("release", ignoreCase = true) }
-        ?: error("No release AAR in $aarDir for $modulePath (run assembleRelease first)")
-}
+afterEvaluate {
+    fun resolveReleaseAar(modulePath: String): java.io.File {
+        val aarDir = project(modulePath).layout.buildDirectory.dir("outputs/aar").get().asFile
+        return aarDir.listFiles()
+            ?.firstOrNull { it.extension == "aar" && it.name.contains("release", ignoreCase = true) }
+            ?: error("No release AAR in $aarDir for $modulePath (run assembleRelease first)")
+    }
 
-gradle.projectsEvaluated {
     val assembleTasks =
         (listOf(":mobshield") + embeddedModules).map { project(it).tasks.named("assembleRelease") }
 
@@ -115,8 +116,11 @@ gradle.projectsEvaluated {
 
         dependsOn(assembleTasks)
 
+        val outputAar = layout.buildDirectory.file("outputs/aar/mobshield-release.aar")
+
         doLast {
-            val hostAar = resolveReleaseAar(":mobshield")
+            val hostAar = outputAar.get().asFile
+            check(hostAar.exists()) { "Missing host AAR: $hostAar" }
 
             val workDir = temporaryDir.resolve("fat-aar-work")
             workDir.deleteRecursively()
@@ -150,10 +154,12 @@ gradle.projectsEvaluated {
                 moduleWork.resolve("classes.jar").takeIf { it.exists() }?.let { classJars.add(it) }
             }
 
-            val mergedClasses = temporaryDir.resolve("classes-merged.jar")
-            mergeClassJars(classJars.filter { it.length() > 0L }, mergedClasses)
-            mergedClasses.copyTo(workDir.resolve("classes.jar"), overwrite = true)
-            repackAar(workDir, hostAar)
+            val mergedClasses = workDir.resolve("classes.jar")
+            mergeClassJars(classJars, mergedClasses)
+
+            val fatAar = temporaryDir.resolve("mobshield-release-fat.aar")
+            repackAar(workDir, fatAar)
+            fatAar.copyTo(hostAar, overwrite = true)
         }
     }
 

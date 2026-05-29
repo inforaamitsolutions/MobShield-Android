@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.mobshield.detect.integrity
+package io.mobshield.detect.root
 
 import android.content.Context
 import io.mobshield.core.MobShieldConfig
 import io.mobshield.core.ModuleRegistry
 
-object IntegrityDetectionRegistrar {
+/** Helper to register [RootDetectionModule] with tuning from [MobShieldConfig]. */
+object RootDetectionRegistrar {
+    @JvmStatic
     fun register(
         context: Context,
         config: MobShieldConfig,
     ) {
         ModuleRegistry.register(
-            IntegrityDetectionModule(context, config),
+            RootDetectionModule(
+                context = context,
+                detectionTuning = config.detectionTuning,
+            ),
         )
     }
 }
