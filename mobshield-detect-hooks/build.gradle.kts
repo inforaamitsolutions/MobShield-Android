@@ -68,7 +68,7 @@ fun deriveKey(
 android {
     namespace = "io.mobshield.detect.hooks"
     compileSdk = libs.versions.compileSdk.get().toInt()
-    ndkVersion = "26.3.11579264"
+    ndkVersion = libs.versions.ndk.get()
 
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()
@@ -80,6 +80,7 @@ android {
                 cppFlags += listOf("-std=c++17", "-Wall", "-Wextra")
                 arguments +=
                     listOf(
+                        "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
                         "-DMOBSHIELD_HOOKS_GENERATED_INCLUDE_DIR=${generatedIncludeDir.get().asFile.absolutePath}",
                     )
             }

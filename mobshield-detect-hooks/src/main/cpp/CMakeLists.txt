@@ -24,3 +24,6 @@ target_compile_features(mobshieldhooks PRIVATE cxx_std_17)
 
 find_library(log-lib log)
 target_link_libraries(mobshieldhooks ${log-lib} dl)
+
+include(${CMAKE_CURRENT_LIST_DIR}/../../../../native/cmake/MobShield16kPages.cmake)
+mobshield_enable_16k_pages(mobshieldhooks)

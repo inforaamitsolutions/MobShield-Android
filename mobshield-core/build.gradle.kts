@@ -33,7 +33,7 @@ tasks.register("generateMobShieldBuildInfo") {
 android {
     namespace = "io.mobshield.core"
     compileSdk = libs.versions.compileSdk.get().toInt()
-    ndkVersion = "26.3.11579264"
+    ndkVersion = libs.versions.ndk.get()
 
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()
@@ -45,6 +45,7 @@ android {
                 cppFlags += listOf("-std=c++17", "-Wall", "-Wextra")
                 arguments +=
                     listOf(
+                        "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON",
                         "-DMOBSHIELD_GENERATED_INCLUDE_DIR=${defaultGeneratedIncludeDir.absolutePath}",
                     )
             }

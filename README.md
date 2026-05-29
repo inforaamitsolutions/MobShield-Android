@@ -23,6 +23,9 @@ Open-source mobile app hardening for Android: modular RASP detectors, signal agg
 - JDK 17+
 - Android SDK 34
 - Gradle 8.7+ (wrapper included)
+- NDK **28.0.13004108** (via SDK Manager; required for **16 KB page size** / Play compliance)
+
+Native modules are built with `ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON` and 16 KB ELF linker alignment. Rebuild and publish a new tag after upgrading the NDK.
 
 ## Build
 
