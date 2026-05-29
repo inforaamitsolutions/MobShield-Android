@@ -15,16 +15,34 @@ plugins {
     alias(libs.plugins.nexus.publish)
 }
 
+val isJitPackBuild =
+    System.getenv("JITPACK") == "true" ||
+        findProperty("jitpack") == "true"
+
+// JitPack: publish only the fat umbrella AAR (all classes inside). Maven Central: all modules.
 val publishableAndroidModules =
-    setOf(
-        "mobshield",
-        "mobshield-core",
-        "mobshield-detect-root",
-        "mobshield-detect-hooks",
-        "mobshield-detect-debugger",
-        "mobshield-detect-environment",
-        "mobshield-detect-integrity",
+    if (isJitPackBuild) {
+        setOf("mobshield")
+    } else {
+        setOf(
+            "mobshield",
+            "mobshield-core",
+            "mobshield-detect-root",
+            "mobshield-detect-hooks",
+            "mobshield-detect-debugger",
+            "mobshield-detect-environment",
+            "mobshield-detect-integrity",
+        )
+    }
+
+tasks.register("jitpackPublish") {
+    group = "publishing"
+    description = "Build fat MobShield AAR and publish for JitPack"
+    dependsOn(
+        ":mobshield:mergeReleaseFatAar",
+        ":mobshield:publishMavenPublicationToMavenLocal",
     )
+}
 
 // Detekt infers JVM target from the running JDK; pin to project target so JDK 21+ local installs still build.
 subprojects {

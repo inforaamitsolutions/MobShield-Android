@@ -157,13 +157,16 @@ gradle.projectsEvaluated {
         }
     }
 
-    tasks.named("assembleRelease").configure {
+    tasks.matching { it.name == "bundleReleaseAar" || it.name == "assembleRelease" }.configureEach {
         finalizedBy("mergeReleaseFatAar")
     }
 
     tasks.matching {
-        it.name == "publishReleasePublicationToMavenLocal" || it.name.contains("publishMavenPublication")
+        it.name == "generateMetadataFileForMavenPublication" ||
+            it.name.contains("publishMavenPublication") ||
+            it.name == "publishToMavenLocal"
     }.configureEach {
+        mustRunAfter("mergeReleaseFatAar")
         dependsOn("mergeReleaseFatAar")
     }
 }

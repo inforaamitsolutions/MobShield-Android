@@ -1,5 +1,8 @@
 jdk:
   - openjdk17
-# Match com.github.<GitHubUser>.<RepoName> — update USER/REPO to your GitHub repo.
+# Set to com.github.<your-github-user>.<your-repo-name> (case-sensitive).
 env:
   ORG_GRADLE_PROJECT_GROUP: com.github.inforaamitsolutions.MobShield-Android
+  JITPACK: "true"
+install:
+  - ./gradlew jitpackPublish -PVERSION_NAME=$VERSION -x test --stacktrace
