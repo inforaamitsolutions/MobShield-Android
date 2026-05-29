@@ -36,13 +36,16 @@ android {
     }
 }
 
+// compileOnly: bundle submodules via mergeReleaseFatAar — do NOT publish them as transitives
+// (avoids "Failed to resolve: mobshield-android:mobshield-core:unspecified" in consumer apps).
 dependencies {
-    api(project(":mobshield-core"))
-    api(project(":mobshield-detect-root"))
-    api(project(":mobshield-detect-hooks"))
-    api(project(":mobshield-detect-debugger"))
-    api(project(":mobshield-detect-environment"))
-    api(project(":mobshield-detect-integrity"))
+    compileOnly(project(":mobshield-core"))
+    compileOnly(project(":mobshield-detect-root"))
+    compileOnly(project(":mobshield-detect-hooks"))
+    compileOnly(project(":mobshield-detect-debugger"))
+    compileOnly(project(":mobshield-detect-environment"))
+    compileOnly(project(":mobshield-detect-integrity"))
+    api(libs.coroutines.android)
 }
 
 fun unzipZipEntry(
@@ -168,5 +171,25 @@ gradle.projectsEvaluated {
     }.configureEach {
         mustRunAfter("mergeReleaseFatAar")
         dependsOn("mergeReleaseFatAar")
+    }
+
+    // Safety net: strip stale project-module entries from Gradle metadata if they appear.
+    tasks.matching { it.name == "generateMetadataFileForMavenPublication" }.configureEach {
+        doLast {
+            val moduleFile =
+                layout.buildDirectory
+                    .file("publications/maven/module.json")
+                    .get()
+                    .asFile
+            if (!moduleFile.exists()) return@doLast
+            val json = moduleFile.readText()
+            if (!json.contains("mobshield-android")) return@doLast
+            val cleaned =
+                json.replace(
+                    Regex("""\s*\{[^{}]*"group": "mobshield-android"[^{}]*\},?"""),
+                    "",
+                )
+            moduleFile.writeText(cleaned)
+        }
     }
 }
