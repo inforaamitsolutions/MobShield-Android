@@ -17,6 +17,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "mobshield-android"
 
+include(":mobshield")
 include(":mobshield-core")
 include(":mobshield-detect-root")
 include(":mobshield-detect-hooks")

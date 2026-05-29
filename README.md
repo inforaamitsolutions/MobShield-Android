@@ -37,6 +37,19 @@ See [mobshield-sample-app/README.md](mobshield-sample-app/README.md) for a 15-mi
 
 See [docs/install.md](../docs/install.md) for Maven Central coordinates (Kotlin and Groovy DSL).
 
+### JitPack (single dependency)
+
+Push this directory as its own GitHub repo (or use it as the repo root), tag a release, then in your app:
+
+```kotlin
+dependencies {
+    implementation("com.github.YOUR_GITHUB_USER:MobShield-Android:mobshield:v0.1.0")
+}
+```
+
+This umbrella artifact pulls in core and all detect modules transitively.
+
+
 Local verification:
 
 ```bash

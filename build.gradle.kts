@@ -17,6 +17,7 @@ plugins {
 
 val publishableAndroidModules =
     setOf(
+        "mobshield",
         "mobshield-core",
         "mobshield-detect-root",
         "mobshield-detect-hooks",

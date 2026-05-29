@@ -29,7 +29,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":mobshield-core"))
+    api(project(":mobshield-core"))
     implementation(libs.coroutines.android)
     testImplementation(libs.junit)
     testImplementation(libs.coroutines.test)
