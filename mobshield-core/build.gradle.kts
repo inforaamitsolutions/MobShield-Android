@@ -83,6 +83,12 @@ tasks.named("preBuild").configure {
     dependsOn("generateMobShieldBuildInfo")
 }
 
+tasks.matching { task ->
+    task.name.startsWith("configureCMake") || task.name.startsWith("buildCMake")
+}.configureEach {
+    dependsOn("generateMobShieldBuildInfo")
+}
+
 gradle.projectsEvaluated {
     val extra = rootProject.extensions.extraProperties
     if (extra.has("mobshield.generatedIncludeDir")) {

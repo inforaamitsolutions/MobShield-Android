@@ -114,6 +114,12 @@ tasks.named("preBuild").configure {
     dependsOn("generateHooksBuildInfo")
 }
 
+tasks.matching { task ->
+    task.name.startsWith("configureCMake") || task.name.startsWith("buildCMake")
+}.configureEach {
+    dependsOn("generateHooksBuildInfo")
+}
+
 dependencies {
     implementation(project(":mobshield-core"))
     implementation(libs.coroutines.android)

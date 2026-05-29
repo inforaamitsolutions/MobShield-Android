@@ -141,8 +141,11 @@ class MobShieldPlugin : Plugin<Project> {
                         sub.tasks.matching {
                             it.name == "generateMobShieldBuildInfo" || it.name == "generateHooksBuildInfo"
                         }.configureEach { task -> task.setEnabled(false) }
-                        sub.tasks.matching { it.name.contains("externalNativeBuild", ignoreCase = true) }
-                            .configureEach { task -> task.dependsOn(generateTask) }
+                        sub.tasks.matching { task ->
+                            task.name.contains("externalNativeBuild", ignoreCase = true) ||
+                                task.name.startsWith("configureCMake") ||
+                                task.name.startsWith("buildCMake")
+                        }.configureEach { task -> task.dependsOn(generateTask) }
                     }
                 }
             }
