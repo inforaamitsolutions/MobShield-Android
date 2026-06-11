@@ -38,7 +38,19 @@ See [mobshield-sample-app/README.md](mobshield-sample-app/README.md) for a 15-mi
 
 ## Install
 
-See [docs/install.md](../docs/install.md) for Maven Central coordinates (Kotlin and Groovy DSL).
+See [docs/install.md](../docs/install.md) for Maven Central coordinates (Kotlin and Groovy DSL). Latest release: **1.0.7**.
+
+```kotlin
+plugins {
+    id("io.mobshield.personalize") version "1.0.7"
+}
+
+dependencies {
+    val mobshield = "1.0.7"
+    implementation("io.mobshield:mobshield-core:$mobshield")
+    // optional: mobshield-detect-root, -hooks, -debugger, -environment, -integrity
+}
+```
 
 ### JitPack (single dependency)
 
@@ -46,7 +58,7 @@ Push this directory as its own GitHub repo (or use it as the repo root), tag a r
 
 ```kotlin
 dependencies {
-    implementation("com.github.YOUR_GITHUB_USER:MobShield-Android:mobshield:v0.1.0")
+    implementation("com.github.inforaamitsolutions:MobShield-Android:mobshield:v1.0.7")
 }
 ```
 
@@ -56,7 +68,7 @@ This umbrella artifact pulls in core and all detect modules transitively.
 Local verification:
 
 ```bash
-./gradlew :mobshield-core:publishToMavenLocal -PVERSION_NAME=0.1.0-SNAPSHOT
+./gradlew :mobshield-core:publishToMavenLocal -PVERSION_NAME=1.0.7-SNAPSHOT
 ```
 
 ## Release
