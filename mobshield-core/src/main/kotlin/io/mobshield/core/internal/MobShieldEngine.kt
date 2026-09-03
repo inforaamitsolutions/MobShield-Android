@@ -21,6 +21,7 @@ import io.mobshield.core.MobShieldListener
 import io.mobshield.core.MobShieldState
 import io.mobshield.core.RiskLevel
 import io.mobshield.core.Severity
+import io.mobshield.core.Signal
 import io.mobshield.core.SignalAggregator
 import io.mobshield.core.TerminationPolicy
 import io.mobshield.core.ThreatEvent
@@ -43,6 +44,7 @@ internal class MobShieldEngine(
     private val signalSetVersion: String,
     periodicIntervalMsOverride: Long? = null,
     private val terminate: () -> Unit = defaultTerminate,
+    private val selfCheck: () -> Int = defaultSelfCheck,
 ) {
     private val stateRef = AtomicReference(idleState())
     private var scanJob: Job? = null
@@ -86,23 +88,23 @@ internal class MobShieldEngine(
 
     private suspend fun runScanWave(): List<ThreatEvent> {
         val modules = resolveModules()
-        if (modules.isEmpty()) {
-            val empty = emptyList<ThreatEvent>()
-            listener.onAllChecksFinished(empty)
-            stateRef.set(buildState(empty, running = true))
-            return empty
-        }
-
-        val signals =
-            coroutineScope {
-                modules
-                    .map { module ->
-                        async {
-                            runCatching { module.scan() }.getOrElse { emptyList() }
-                        }
-                    }.awaitAll()
-                    .flatten()
+        val moduleSignals =
+            if (modules.isEmpty()) {
+                emptyList()
+            } else {
+                coroutineScope {
+                    modules
+                        .map { module ->
+                            async {
+                                runCatching { module.scan() }.getOrElse { emptyList() }
+                            }
+                        }.awaitAll()
+                        .flatten()
+                }
             }
+
+        // Native core integrity runs every wave, independent of registered modules.
+        val signals = moduleSignals + listOfNotNull(makeSelfCheckSignal())
 
         val aggregator = SignalAggregator(config)
         val events = aggregator.aggregate(signals)
@@ -112,6 +114,21 @@ internal class MobShieldEngine(
         listener.onAllChecksFinished(events)
         stateRef.set(buildState(events, running = true))
         return events
+    }
+
+    /**
+     * Emits an integrity signal when the native core self-check reports an unhealthy (zero) result,
+     * which indicates the native core was zeroed, swapped, or otherwise tampered with. Per the
+     * documented native contract, a healthy core returns nonzero.
+     */
+    private fun makeSelfCheckSignal(): Signal? {
+        if (selfCheck() != 0) return null
+        return Signal(
+            name = SELF_CHECK_SIGNAL,
+            weight = SELF_CHECK_WEIGHT,
+            confidence = SELF_CHECK_CONFIDENCE,
+            evidence = mapOf("reason" to "native_self_check_failed"),
+        )
     }
 
     private fun buildState(
@@ -159,10 +176,18 @@ internal class MobShieldEngine(
 
         private const val MILLIS_PER_SECOND = 1000L
 
+        /** Signal name for the native core integrity probe; maps to APP_INTEGRITY. */
+        internal const val SELF_CHECK_SIGNAL = "android.integrity.native_self_check"
+        private const val SELF_CHECK_WEIGHT = 90
+        private const val SELF_CHECK_CONFIDENCE = 95
+
         /** Default process-exit action; killing the process is the Android RASP idiom. */
         internal val defaultTerminate: () -> Unit = {
             android.os.Process.killProcess(android.os.Process.myPid())
         }
+
+        /** Native core integrity probe; a healthy core returns nonzero. */
+        internal val defaultSelfCheck: () -> Int = { NativeBridge.selfCheck() }
 
         /**
          * Decides whether the current scan results warrant process termination.
