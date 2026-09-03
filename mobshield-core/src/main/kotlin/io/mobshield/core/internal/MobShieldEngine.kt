@@ -47,6 +47,7 @@ internal class MobShieldEngine(
     private val selfCheck: () -> Int = defaultSelfCheck,
 ) {
     private val stateRef = AtomicReference(idleState())
+    private val lastEventsRef = AtomicReference<List<ThreatEvent>>(emptyList())
     private var scanJob: Job? = null
 
     // Rescan cadence in milliseconds; null runs a single scan wave (spec default).
@@ -82,9 +83,12 @@ internal class MobShieldEngine(
         scanJob?.cancel()
         scanJob = null
         stateRef.set(idleState())
+        lastEventsRef.set(emptyList())
     }
 
     fun getState(): MobShieldState = stateRef.get()
+
+    fun getLastEvents(): List<ThreatEvent> = lastEventsRef.get()
 
     private suspend fun runScanWave(): List<ThreatEvent> {
         val modules = resolveModules()
@@ -113,6 +117,7 @@ internal class MobShieldEngine(
         }
         listener.onAllChecksFinished(events)
         stateRef.set(buildState(events, running = true))
+        lastEventsRef.set(events)
         return events
     }
 

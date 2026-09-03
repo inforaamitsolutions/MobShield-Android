@@ -74,6 +74,23 @@ object MobShield {
             )
     }
 
+    /** Events from the most recent completed scan wave. */
+    @JvmStatic
+    fun getLastEvents(): List<ThreatEvent> = engineRef.get()?.getLastEvents() ?: emptyList()
+
+    /** A snapshot report of the latest scan wave's posture, suitable for sending to a backend. */
+    @JvmStatic
+    fun currentReport(schemaVersion: String = ThreatReport.CURRENT_SCHEMA_VERSION): ThreatReport =
+        MobShieldReporter.makeReport(getState(), getLastEvents(), getBuildId(), schemaVersion)
+
+    /**
+     * The current report as canonical JSON plus an HMAC-SHA256 signature under [key]. Transmit both
+     * to your backend; the backend recomputes the HMAC over the received JSON to verify the report
+     * was produced by a build holding the shared key and was not altered in transit.
+     */
+    @JvmStatic
+    fun currentSignedReport(key: ByteArray): SignedThreatReport = MobShieldReporter.sign(currentReport(), key)
+
     /** Native and API version string. */
     @JvmStatic
     fun getVersion(): String {
