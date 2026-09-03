@@ -62,6 +62,7 @@ class MobShieldEngineIntegrationTest {
                     resolveModules = { ModuleRegistry.getAll() },
                     scope = this,
                     signalSetVersion = MobShield.SIGNAL_SET_VERSION,
+                    selfCheck = { 1 },
                 )
 
             engine.start()
@@ -157,12 +158,44 @@ class MobShieldEngineIntegrationTest {
             engine.stop()
         }
 
+    @Test
+    fun engine_nativeSelfCheckFailure_emitsCriticalIntegrityThreat() =
+        runTest {
+            // No modules registered: the self-check must run on its own.
+            val listener = RecordingListener()
+            val engine = makeEngine(this, MobShieldConfig(), listener, selfCheck = { 0 })
+
+            engine.start()
+            advanceUntilIdle()
+
+            assertEquals(1, listener.threats.size)
+            assertEquals(ThreatType.APP_INTEGRITY, listener.threats[0].type)
+            assertEquals(Severity.CRITICAL, listener.threats[0].severity)
+            assertTrue(engine.getState().activeThreats.contains(ThreatType.APP_INTEGRITY))
+            engine.stop()
+        }
+
+    @Test
+    fun engine_healthySelfCheck_emitsNoIntegritySignal() =
+        runTest {
+            val listener = RecordingListener()
+            val engine = makeEngine(this, MobShieldConfig(), listener, selfCheck = { 0x4D534844 })
+
+            engine.start()
+            advanceUntilIdle()
+
+            assertTrue(listener.threats.isEmpty())
+            assertEquals(1, listener.finished.size)
+            engine.stop()
+        }
+
     private fun makeEngine(
         scope: CoroutineScope,
         config: MobShieldConfig,
         listener: MobShieldListener,
         periodicIntervalMsOverride: Long? = null,
         terminate: () -> Unit = {},
+        selfCheck: () -> Int = { 1 },
     ): MobShieldEngine =
         MobShieldEngine(
             config = config,
@@ -172,6 +205,7 @@ class MobShieldEngineIntegrationTest {
             signalSetVersion = MobShield.SIGNAL_SET_VERSION,
             periodicIntervalMsOverride = periodicIntervalMsOverride,
             terminate = terminate,
+            selfCheck = selfCheck,
         )
 
     private fun rootModule(
