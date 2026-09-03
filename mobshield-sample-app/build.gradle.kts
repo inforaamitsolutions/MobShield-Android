@@ -54,6 +54,10 @@ android {
 
 dependencies {
     implementation(project(":mobshield"))
+    // The :mobshield umbrella pulls core in as compileOnly (bundled into the fat AAR for external
+    // consumers), so it does not export io.mobshield.core.* on the compile classpath. This app
+    // references those types directly, so depend on core explicitly.
+    implementation(project(":mobshield-core"))
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
