@@ -36,11 +36,11 @@ Artifacts are published to **Maven Central** under the `io.mobshield` group. Add
 
 ```kotlin
 plugins {
-    id("io.mobshield.personalize") version "1.0.7"
+    id("io.mobshield.personalize") version "1.0.8"
 }
 
 dependencies {
-    val mobshield = "1.0.7"
+    val mobshield = "1.0.8"
     implementation("io.mobshield:mobshield-core:$mobshield")
     // optional detectors:
     implementation("io.mobshield:mobshield-detect-root:$mobshield")
@@ -59,7 +59,7 @@ maven { url = uri("https://jitpack.io") }
 
 // build.gradle.kts
 dependencies {
-    implementation("com.github.inforaamitsolutions:MobShield-Android:mobshield:v1.0.7")
+    implementation("com.github.inforaamitsolutions:MobShield-Android:mobshield:v1.0.8")
 }
 ```
 
@@ -141,7 +141,7 @@ Publishing a `v*.*.*` tag builds and signs the artifacts and publishes them to M
 Local verification:
 
 ```bash
-./gradlew :mobshield-core:publishToMavenLocal -PVERSION_NAME=1.0.7-SNAPSHOT
+./gradlew :mobshield-core:publishToMavenLocal -PVERSION_NAME=1.0.8-SNAPSHOT
 ```
 
 ## License
